@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Awaiting approval{% endblock %}
+{% from 'macros.html' import head, st %}
+{% block body %}
+{{ head('Examiner account', 'Awaiting', 'approval.',
+        'The Admin has to approve your account before the dashboard opens. Check back later.') }}
+<p>{{ st(g.user.status) }}</p>
+{% endblock %}

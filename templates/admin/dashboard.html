@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Admin{% endblock %}
+{% from 'macros.html' import head, numbers, st, post %}
+{% block body %}
+{{ head('Admin', 'The whole', 'register.') }}
+{{ numbers(stats) }}
+
+<div class="split">
+  <section class="section">
+    <div class="section-head"><h2>Awaiting approval</h2>
+      <a class="act" href="{{ url_for('admin.examiners', status='pending') }}">all</a></div>
+    {% if pending %}
+    <table class="table"><tbody>
+      {% for u in pending %}
+      <tr><td>{{ u.full_name }}<div class="muted mono">{{ u.department }}</div></td>
+          <td class="r">{{ post(url_for('admin.examiner_status', uid=u.id), 'Approve', extra='<input type="hidden" name="status" value="active">') }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<div class="empty">No examiners are waiting.</div>{% endif %}
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Recent examinations</h2>
+      <a class="act" href="{{ url_for('admin.exam_new') }}">new</a></div>
+    {% if exams %}
+    <table class="table"><tbody>
+      {% for e in exams %}
+      <tr><td><a href="{{ url_for('admin.exam_detail', eid=e.id) }}">{{ e.name }}</a>
+          <div class="muted mono">{{ e.code }}</div></td>
+          <td class="r">{{ st(e.status) }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% else %}<div class="empty">Nothing yet. Start with a course.</div>{% endif %}
+  </section>
+</div>
+{% endblock %}

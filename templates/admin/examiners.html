@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Examiners{% endblock %}
+{% from 'macros.html' import head, st, post %}
+{% block body %}
+{{ head('Admin', 'Examiners') }}
+<div class="toolbar">
+  <form class="search" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Name, email, department or ID">
+    <select class="form-select" name="status">
+      <option value="">Any status</option>
+      {% for s in ['pending','active','inactive'] %}<option {{ 'selected' if s == st_ }}>{{ s }}</option>{% endfor %}
+    </select>
+    <button class="btn">Filter</button>
+    {% if q or st_ %}<a class="act" href="{{ url_for('admin.examiners') }}">clear</a>{% endif %}
+  </form>
+</div>
+{% if rows %}
+<div class="table-responsive"><table class="table">
+  <thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Department</th><th>Exams</th><th>Slots</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for u in rows %}
+  <tr><td class="mono">{{ u.id }}</td><td>{{ u.full_name }}</td>
+      <td><span class="mono">{{ u.email }}</span><div class="muted mono">{{ u.phone }}</div></td>
+      <td>{{ u.department }}</td><td class="mono">{{ u.n_exams }}</td><td class="mono">{{ u.n_slots }}</td>
+      <td>{{ st(u.status) }}</td>
+      <td class="r">
+        {% if u.status != 'active' %}{{ post(url_for('admin.examiner_status', uid=u.id), 'Approve' if u.status == 'pending' else 'Reactivate', extra='<input type="hidden" name="status" value="active">') }}{% endif %}
+        {% if u.status != 'inactive' %}{{ post(url_for('admin.examiner_status', uid=u.id), 'Reject' if u.status == 'pending' else 'Deactivate', 'act act-danger', 'Deactivate this examiner?', '<input type="hidden" name="status" value="inactive">') }}{% endif %}
+      </td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="empty">No examiners {{ 'match.' if (q or st_) else 'have registered.' }}</div>{% endif %}
+{% endblock %}

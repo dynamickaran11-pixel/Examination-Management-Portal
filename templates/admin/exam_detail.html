@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ e.name }}{% endblock %}
+{% from 'macros.html' import head, st, post, field %}
+{% block body %}
+{{ head(e.code ~ ' · ' ~ e.course_name, e.name) }}
+<div class="d-flex flex-wrap gap-3 align-items-center">
+  {{ st(e.status) }}
+  <span class="muted">·</span>
+  {% for a, label in actions %}
+    {{ post(url_for('admin.exam_status', eid=e.id), label, 'btn btn-sm' ~ (' btn-ink' if a == 'open_booking' else ''), extra='<input type="hidden" name="action" value="' ~ a ~ '">') }}
+  {% endfor %}
+  <span class="ms-auto">
+    <a class="act" href="{{ url_for('admin.exam_edit', eid=e.id) }}">edit</a>
+    {{ post(url_for('admin.exam_delete', eid=e.id), 'delete', 'act act-danger', 'Delete this examination?') }}
+  </span>
+</div>
+
+<dl class="facts">
+  <div><dt>Type</dt><dd>{{ e.type }}</dd></div>
+  <div><dt>Duration</dt><dd>{{ e.duration }} min</dd></div>
+  <div><dt>Max marks</dt><dd>{{ e.max_marks }}</dd></div>
+  <div><dt>Slot creation</dt><dd class="mono">{{ e.slot_create_start|dmy }} → {{ e.slot_create_end|dmy }}</dd></div>
+  <div><dt>Booking</dt><dd class="mono">{{ e.book_start|dmy }} → {{ e.book_end|dmy }}</dd></div>
+  <div><dt>Results</dt><dd>{{ 'Published' if e.results_published else 'Hidden' }}
+    {{ post(url_for('admin.exam_publish', eid=e.id), 'hide' if e.results_published else 'publish') }}</dd></div>
+</dl>
+
+<section class="section" id="examiners">
+  <div class="section-head"><h2>Assigned examiners</h2></div>
+  {% if assigned %}
+  <table class="table"><tbody>
+    {% for u in assigned %}
+    <tr><td>{{ u.full_name }}<div class="muted mono">{{ u.department }}</div></td><td>{{ st(u.status) }}</td>
+        <td class="r">{{ post(url_for('admin.exam_unassign', eid=e.id, xid=u.id), 'remove', 'act act-danger') }}</td></tr>
+    {% endfor %}
+  </tbody></table>
+  {% else %}<div class="empty">No examiner assigned yet. Slots can only be made by assigned examiners.</div>{% endif %}
+  {% if available %}
+  <form method="post" action="{{ url_for('admin.exam_assign', eid=e.id) }}" class="search mt-3">
+    {{ csrf_field() }}
+    <select class="form-select" name="examiner_id">{% for u in available %}<option value="{{ u.id }}">{{ u.full_name }} — {{ u.department }}</option>{% endfor %}</select>
+    <button class="btn btn-sm">Assign</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="section" id="rubrics">
+  <div class="section-head"><h2>Rubric</h2>
+    <span class="hint">{{ m_sum|num }} marks · {{ w_sum|num }}% weightage</span></div>
+  {% if rubrics %}
+  <table class="table">
+    <thead><tr><th>Criterion</th><th>Max</th><th>Weight %</th><th></th></tr></thead><tbody>
+    {% for r in rubrics %}
+    <tr><td>{{ r.criterion }}{% if r.description %}<div class="muted">{{ r.description }}</div>{% endif %}</td>
+        <td class="mono">{{ r.max_marks|num }}</td><td class="mono">{{ r.weightage|num }}</td>
+        <td class="r"><a class="act" href="{{ url_for('admin.rubric_edit', rid=r.id) }}">edit</a>
+          {{ post(url_for('admin.rubric_delete', rid=r.id), 'delete', 'act act-danger', 'Remove this criterion?') }}</td></tr>
+    {% endfor %}</tbody></table>
+  {% else %}<div class="empty">No criteria yet. Examiners need a rubric to award marks.</div>{% endif %}
+  <form method="post" action="{{ url_for('admin.rubric_add', eid=e.id) }}" class="row g-3 mt-2 align-items-end">
+    {{ csrf_field() }}
+    <div class="col-md-4"><label class="form-label">Criterion</label><input class="form-control" name="criterion" required></div>
+    <div class="col-md-2 col-6"><label class="form-label">Max marks</label><input class="form-control" name="max_marks" type="number" step="any" min="0.5" required></div>
+    <div class="col-md-2 col-6"><label class="form-label">Weight %</label><input class="form-control" name="weightage" type="number" step="any" min="0" max="100" value="0" required></div>
+    <div class="col-md-3"><label class="form-label">Description</label><input class="form-control" name="description"></div>
+    <div class="col-md-1"><button class="btn btn-sm">Add</button></div>
+  </form>
+  <p class="hint mt-2">Total = Σ (marks ÷ max × weight) ÷ Σ weight × exam marks. With no weights it is a plain sum.</p>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Slots</h2><span class="hint">{{ slots|length }}</span></div>
+  {% if slots %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>ID</th><th>Date</th><th>Time</th><th>Examiner</th><th>Seats</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for s in slots %}
+    <tr><td class="mono">{{ s.id }}</td><td class="mono">{{ s.date|dmy }}</td>
+        <td class="mono">{{ s.start_time }}–{{ s.end_time }}</td><td>{{ s.examiner }}</td>
+        <td class="mono">{{ s.available_seats }}/{{ s.capacity }}</td><td>{{ st(s.status) }}</td>
+        <td class="r"><a class="act" href="{{ url_for('admin.slot_examiner', sid=s.id) }}">change examiner</a></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">No slots created.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Bookings</h2><span class="hint">{{ bookings|length }}</span></div>
+  {% if bookings %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>ID</th><th>Student</th><th>Slot</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for b in bookings %}
+    <tr><td class="mono">{{ b.id }}</td><td>{{ b.student }}</td>
+        <td class="mono">{{ b.date|dmy }} {{ b.start_time }}</td><td>{{ st(b.status) }}</td>
+        <td class="r">{% if b.status == 'Booked' %}<a class="act" href="{{ url_for('admin.reschedule', bid=b.id) }}">reschedule</a>{% endif %}</td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">No bookings yet.</div>{% endif %}
+</section>
+{% endblock %}

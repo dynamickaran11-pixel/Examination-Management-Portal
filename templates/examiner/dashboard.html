@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Examiner{% endblock %}
+{% from 'macros.html' import head, numbers, st %}
+{% block body %}
+{{ head('Examiner', 'Your', 'desk.') }}
+{{ numbers(stats) }}
+
+<section class="section">
+  <div class="section-head"><h2>Assigned examinations</h2></div>
+  {% if exams %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>Examination</th><th>Type</th><th>Slot creation</th><th>My slots</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for e in exams %}
+    <tr><td>{{ e.name }}<div class="muted mono">{{ e.code }}</div></td><td>{{ e.type }}</td>
+        <td class="mono">{{ e.slot_create_start|dmy }} → {{ e.slot_create_end|dmy }}</td>
+        <td class="mono">{{ e.my_slots }}</td><td>{{ st(e.status) }}</td>
+        <td class="r"><a class="act" href="{{ url_for('examiner.exam', eid=e.id) }}">slots</a></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">The Admin has not assigned you to an examination yet.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Pending evaluations</h2></div>
+  {% if pending %}
+  <table class="table"><tbody>
+    {% for p in pending %}
+    <tr><td>{{ p.student }}</td><td>{{ p.exam }}</td><td class="mono">{{ p.date|dmy }} {{ p.start_time }}</td>
+        <td class="r"><a class="act" href="{{ url_for('examiner.evaluate', bid=p.id) }}">evaluate</a></td></tr>
+    {% endfor %}</tbody></table>
+  {% else %}<div class="empty">Nothing waiting for marks.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>My slots</h2></div>
+  {% if slots %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>Examination</th><th>Date</th><th>Time</th><th>Booked</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for s in slots %}
+    <tr><td>{{ s.exam }}</td><td class="mono">{{ s.date|dmy }}</td><td class="mono">{{ s.start_time }}–{{ s.end_time }}</td>
+        <td class="mono">{{ s.n_booked }}/{{ s.capacity }}</td><td>{{ st(s.status) }}</td>
+        <td class="r"><a class="act" href="{{ url_for('examiner.slot', sid=s.id) }}">students</a></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">You have not created any slots.</div>{% endif %}
+</section>
+{% endblock %}

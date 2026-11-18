@@ -1,0 +1,24 @@
+{% set links = {
+  'admin': [('admin.dashboard','Overview'),('admin.courses','Courses'),('admin.exams','Examinations'),
+            ('admin.examiners','Examiners'),('admin.students','Students'),('admin.slots','Slots'),
+            ('admin.bookings','Bookings')],
+  'examiner': [('examiner.dashboard','Overview')],
+  'student': [('student.dashboard','Overview'),('student.exams','Examinations'),
+              ('student.bookings','Bookings'),('student.results','Results'),('student.profile','Profile')]
+} %}
+<header class="site-nav">
+  <a class="brand" href="{{ url_for('auth.index') }}"><span class="seal">E</span>Examination Portal</a>
+  <nav class="nav-links">
+    {% if g.user and not (g.user.role == 'examiner' and g.user.status != 'active') %}
+      {% for ep, label in links[g.user.role] %}
+        {% set u = url_for(ep) %}
+        <a href="{{ u }}" class="{{ 'on' if ((request.path == u) if loop.first else request.path.startswith(u)) }}">{{ label }}</a>
+      {% endfor %}
+    {% endif %}
+    {% if g.user %}
+      <span class="who">{{ g.user.full_name }}</span>
+      <form method="post" action="{{ url_for('auth.logout') }}" class="d-inline">{{ csrf_field() }}
+        <button class="act">Sign out</button></form>
+    {% endif %}
+  </nav>
+</header>

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Slots{% endblock %}
+{% from 'macros.html' import head, st %}
+{% block body %}
+{{ head('Admin', 'All slots') }}
+<div class="toolbar">
+  <form class="search" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Examination, examiner or ID">
+    <button class="btn">Search</button>
+    {% if q %}<a class="act" href="{{ url_for('admin.slots') }}">clear</a>{% endif %}
+  </form>
+</div>
+{% if rows %}
+<div class="table-responsive"><table class="table">
+  <thead><tr><th>ID</th><th>Examination</th><th>Date</th><th>Time</th><th>Examiner</th><th>Seats</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for s in rows %}
+  <tr><td class="mono">{{ s.id }}</td>
+      <td><a href="{{ url_for('admin.exam_detail', eid=s.exam_id) }}">{{ s.exam }}</a></td>
+      <td class="mono">{{ s.date|dmy }}</td><td class="mono">{{ s.start_time }}–{{ s.end_time }}</td>
+      <td>{{ s.examiner }}</td><td class="mono">{{ s.available_seats }}/{{ s.capacity }}</td>
+      <td>{{ st(s.status) }}</td>
+      <td class="r"><a class="act" href="{{ url_for('admin.slot_examiner', sid=s.id) }}">change examiner</a></td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="empty">No slots {{ 'match.' if q else 'have been created.' }}</div>{% endif %}
+{% endblock %}

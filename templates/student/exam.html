@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ e.name }}{% endblock %}
+{% from 'macros.html' import head, st, post %}
+{% block body %}
+{{ head(e.code ~ ' · ' ~ e.course_name, e.name) }}
+<div>{{ st(e.status) }}</div>
+<dl class="facts">
+  <div><dt>Type</dt><dd>{{ e.type }}</dd></div>
+  <div><dt>Duration</dt><dd>{{ e.duration }} min</dd></div>
+  <div><dt>Max marks</dt><dd>{{ e.max_marks }}</dd></div>
+  <div><dt>Booking window</dt><dd class="mono">{{ e.book_start|dmy }} → {{ e.book_end|dmy }}</dd></div>
+</dl>
+
+{% if mine %}<div class="note note-ok">You hold a booking for this examination ({{ mine.status }}).</div>
+{% elif not is_open %}<div class="note">Booking is not open for this examination.</div>{% endif %}
+
+<section class="section">
+  <div class="section-head"><h2>Slots</h2></div>
+  {% if slots %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>Date</th><th>Time</th><th>Examiner</th><th>Seats</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for s in slots %}
+    <tr><td class="mono">{{ s.date|dmy }}</td><td class="mono">{{ s.start_time }}–{{ s.end_time }}</td>
+        <td>{{ s.examiner }}</td><td class="mono">{{ s.available_seats }}/{{ s.capacity }}</td><td>{{ st(s.status) }}</td>
+        <td class="r">{% if is_open and not mine and s.status == 'Available' %}
+          {{ post(url_for('student.book', sid=s.id), 'Book', 'btn btn-sm btn-ink') }}{% endif %}</td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">No slots have been published.</div>{% endif %}
+</section>
+
+{% if rubrics %}
+<section class="section">
+  <div class="section-head"><h2>How you’ll be marked</h2></div>
+  <table class="table"><tbody>
+    {% for r in rubrics %}<tr><td>{{ r.criterion }}{% if r.description %}<div class="muted">{{ r.description }}</div>{% endif %}</td>
+      <td class="mono r">{{ r.max_marks|num }} marks</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% endif %}
+{% endblock %}

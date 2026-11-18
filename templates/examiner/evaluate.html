@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Evaluate{% endblock %}
+{% from 'macros.html' import head %}
+{% block body %}
+{{ head(b.exam ~ ' · ' ~ b.date|dmy, 'Evaluate', b.student) }}
+{% if rubrics %}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  <table class="table">
+    <thead><tr><th>Criterion</th><th class="r">Marks</th></tr></thead><tbody>
+    {% for r in rubrics %}
+    <tr><td>{{ r.criterion }}{% if r.description %}<div class="muted">{{ r.description }}</div>{% endif %}
+          <div class="muted mono">max {{ r.max_marks|num }} · weight {{ r.weightage|num }}%</div></td>
+        <td class="r" style="width:8rem"><input class="form-control text-end" type="number" step="any" min="0" max="{{ r.max_marks }}"
+            name="m_{{ r.id }}" value="{{ prev.get(r.id, '') }}" required></td></tr>
+    {% endfor %}</tbody></table>
+  <div class="my-4"><label class="form-label" for="remarks">Remarks</label>
+    <textarea class="form-control" id="remarks" name="remarks" rows="3" placeholder="Feedback the student will read">{{ remarks }}</textarea></div>
+  <button class="btn btn-ink" {{ 'disabled' if b.results_published }}>Submit marks</button>
+  <a class="act ms-3" href="{{ url_for('examiner.slot', sid=b.slot_id) }}">cancel</a>
+  {% if b.results_published %}<p class="hint mt-3">Results are published; marks are locked.</p>{% endif %}
+</form>
+{% else %}
+<div class="empty">No rubric exists for this examination yet. Ask the Admin to add criteria.</div>
+{% endif %}
+{% endblock %}

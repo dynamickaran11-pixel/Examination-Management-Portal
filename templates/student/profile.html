@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% from 'macros.html' import head, field %}
+{% block body %}
+{{ head('Student', 'Your', 'profile') }}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  {{ field('Full name', 'full_name', u.full_name) }}
+  <div class="mb-4"><div class="form-label">Email</div><div class="mono">{{ g.user.email }}</div></div>
+  {{ field('Phone', 'phone', u.phone, 'tel', false) }}
+  {{ field('Department', 'department', u.department, 'text', false) }}
+  {{ field('New password (leave blank to keep)', 'password', '', 'password', false, 'minlength="6"') }}
+  <button class="btn btn-ink">Save</button>
+</form>
+{% endblock %}

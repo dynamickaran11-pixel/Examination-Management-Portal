@@ -1,0 +1,29 @@
+{% macro st(s) %}<span class="st st-{{ s|slug }}">{{ s }}</span>{% endmacro %}
+
+{% macro head(eyebrow, title, em='', lede='') %}
+<div class="page-head">
+  <div class="eyebrow">{{ eyebrow }}</div>
+  <h1 class="title">{{ title }}{% if em %} <em>{{ em }}</em>{% endif %}</h1>
+  {% if lede %}<p class="lede">{{ lede }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro field(label, name, value='', type='text', required=true, attrs='') %}
+<div class="mb-4">
+  <label class="form-label" for="{{ name }}">{{ label }}</label>
+  <input class="form-control" id="{{ name }}" name="{{ name }}" type="{{ type }}"
+         value="{{ value if value is not none else '' }}" {{ 'required' if required }} {{ attrs|safe }}>
+</div>
+{% endmacro %}
+
+{% macro post(url, label, cls='act', confirm='', extra='') %}
+<form method="post" action="{{ url }}" class="d-inline"
+      {% if confirm %}onsubmit="return confirm('{{ confirm }}')"{% endif %}>{{ csrf_field() }}{{ extra|safe }}
+  <button class="{{ cls }}">{{ label }}</button></form>
+{% endmacro %}
+
+{% macro numbers(items) %}
+<div class="stats">
+  {% for label, n in items %}<div class="stat"><div class="n">{{ n }}</div><div class="eyebrow">{{ label }}</div></div>{% endfor %}
+</div>
+{% endmacro %}

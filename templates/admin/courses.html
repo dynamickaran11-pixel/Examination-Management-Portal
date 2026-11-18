@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Courses{% endblock %}
+{% from 'macros.html' import head, st, post %}
+{% block body %}
+{{ head('Admin', 'Courses') }}
+<div class="toolbar">
+  <form class="search" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Name, code or ID">
+    <button class="btn">Search</button>
+    {% if q %}<a class="act" href="{{ url_for('admin.courses') }}">clear</a>{% endif %}
+  </form>
+  <a class="btn btn-ink" href="{{ url_for('admin.course_new') }}">New course</a>
+</div>
+{% if rows %}
+<div class="table-responsive"><table class="table">
+  <thead><tr><th>ID</th><th>Code</th><th>Name</th><th>Exams</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for c in rows %}
+  <tr><td class="mono">{{ c.id }}</td><td class="mono">{{ c.code }}</td>
+      <td>{{ c.name }}{% if c.description %}<div class="muted">{{ c.description|truncate(70) }}</div>{% endif %}</td>
+      <td class="mono">{{ c.n_exams }}</td><td>{{ st(c.status) }}</td>
+      <td class="r"><a class="act" href="{{ url_for('admin.course_edit', cid=c.id) }}">edit</a>
+        {{ post(url_for('admin.course_delete', cid=c.id), 'delete', 'act act-danger', 'Remove this course?') }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="empty">No courses {{ 'match.' if q else 'yet.' }}</div>{% endif %}
+{% endblock %}

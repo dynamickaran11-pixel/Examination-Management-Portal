@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Sign in{% endblock %}
+{% from 'macros.html' import field %}
+{% block shell %}
+<div class="auth">
+  <section class="auth-art">
+    <span class="seal">E</span>
+    <h1>Examination<br><em>Management</em><br>Portal.</h1>
+    <div class="eyebrow">Admin &nbsp;·&nbsp; Examiner &nbsp;·&nbsp; Student</div>
+  </section>
+  <section class="auth-form">
+    <div>
+      <h2>Sign in</h2>
+      {% for cat, msg in get_flashed_messages(with_categories=true) %}
+        <div class="note note-{{ cat }} mb-4 mt-0">{{ msg }}</div>
+      {% endfor %}
+      <form method="post" novalidate>
+        {{ csrf_field() }}
+        {{ field('Email', 'email', request.form.get('email',''), 'email', attrs='autofocus autocomplete="username"') }}
+        {{ field('Password', 'password', '', 'password', attrs='autocomplete="current-password"') }}
+        <button class="btn btn-ink mt-2">Enter</button>
+      </form>
+      <p class="mt-5 mb-0 hint">New here? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

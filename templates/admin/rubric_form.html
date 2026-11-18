@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Criterion{% endblock %}
+{% from 'macros.html' import head, field %}
+{% block body %}
+{{ head('Rubric', 'Edit', 'criterion') }}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  {{ field('Criterion', 'criterion', r.criterion) }}
+  <div class="row">
+    <div class="col-6">{{ field('Max marks', 'max_marks', r.max_marks|num if r.max_marks is number else r.max_marks, 'number', attrs='step="any" min="0.5"') }}</div>
+    <div class="col-6">{{ field('Weight %', 'weightage', r.weightage|num if r.weightage is number else r.weightage, 'number', attrs='step="any" min="0" max="100"') }}</div>
+  </div>
+  {{ field('Description', 'description', r.description, required=false) }}
+  <button class="btn btn-ink">Save</button>
+  <a class="act ms-3" href="{{ url_for('admin.exam_detail', eid=eid) }}#rubrics">cancel</a>
+</form>
+{% endblock %}

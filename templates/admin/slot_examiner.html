@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Change examiner{% endblock %}
+{% from 'macros.html' import head %}
+{% block body %}
+{{ head('Slot #' ~ s.id ~ ' · ' ~ s.exam, 'Change', 'examiner') }}
+<p class="mono">{{ s.date|dmy }} · {{ s.start_time }}–{{ s.end_time }} · currently <strong>{{ cur }}</strong></p>
+{% if options %}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  <div class="mb-4"><label class="form-label" for="examiner_id">New examiner</label>
+    <select class="form-select" id="examiner_id" name="examiner_id">
+      {% for u in options %}<option value="{{ u.id }}">{{ u.full_name }} — {{ u.department }}</option>{% endfor %}
+    </select></div>
+  <button class="btn btn-ink">Reassign</button>
+  <a class="act ms-3" href="{{ url_for('admin.slots') }}">cancel</a>
+</form>
+{% else %}<div class="empty">No other approved examiner is available.</div>{% endif %}
+{% endblock %}

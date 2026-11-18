@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Student{% endblock %}
+{% from 'macros.html' import head, numbers, st %}
+{% block body %}
+{{ head('Student', 'Hello,', g.user.full_name.split()[0] ~ '.') }}
+{{ numbers(stats) }}
+
+<section class="section">
+  <div class="section-head"><h2>Open for booking</h2><a class="act" href="{{ url_for('student.exams') }}">all examinations</a></div>
+  {% if open_exams %}
+  <table class="table"><tbody>
+    {% for e in open_exams %}
+    <tr><td>{{ e.name }}<div class="muted mono">{{ e.code }} · {{ e.type }} · {{ e.duration }} min</div></td>
+        <td class="mono">{{ e.open_slots }} slot{{ '' if e.open_slots == 1 else 's' }}</td>
+        <td class="mono">until {{ e.book_end|dmy }}</td>
+        <td class="r"><a class="act" href="{{ url_for('student.exam', eid=e.id) }}">choose a slot</a></td></tr>
+    {% endfor %}</tbody></table>
+  {% else %}<div class="empty">Nothing is open for booking right now.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Upcoming</h2><a class="act" href="{{ url_for('student.bookings') }}">history</a></div>
+  {% if upcoming %}
+  <table class="table"><tbody>
+    {% for b in upcoming %}
+    <tr><td>{{ b.exam }}<div class="muted">with {{ b.examiner }}</div></td>
+        <td class="mono">{{ b.date|dmy }}</td><td class="mono">{{ b.start_time }}–{{ b.end_time }}</td></tr>
+    {% endfor %}</tbody></table>
+  {% else %}<div class="empty">No bookings yet.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Latest results</h2><a class="act" href="{{ url_for('student.results') }}">all</a></div>
+  {% if results %}
+  <table class="table"><tbody>
+    {% for r in results %}
+    <tr><td>{{ r.exam }}</td><td class="mono">{{ r.total_marks|num }} / {{ r.max_marks }}</td></tr>
+    {% endfor %}</tbody></table>
+  {% else %}<div class="empty">No published results.</div>{% endif %}
+</section>
+{% endblock %}

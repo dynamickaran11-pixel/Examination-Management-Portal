@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Bookings{% endblock %}
+{% from 'macros.html' import head, st %}
+{% block body %}
+{{ head('Admin', 'All bookings') }}
+<div class="toolbar">
+  <form class="search" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Student, examination or ID">
+    <select class="form-select" name="status">
+      <option value="">Any status</option>
+      {% for s in ['Booked','Cancelled','Completed'] %}<option {{ 'selected' if s == st_ }}>{{ s }}</option>{% endfor %}
+    </select>
+    <button class="btn">Filter</button>
+    {% if q or st_ %}<a class="act" href="{{ url_for('admin.bookings') }}">clear</a>{% endif %}
+  </form>
+</div>
+{% if rows %}
+<div class="table-responsive"><table class="table">
+  <thead><tr><th>ID</th><th>Student</th><th>Examination</th><th>Slot</th><th>Examiner</th><th>Booked on</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for b in rows %}
+  <tr><td class="mono">{{ b.id }}</td><td>{{ b.student }}<div class="muted mono">#{{ b.student_id }}</div></td>
+      <td>{{ b.exam }}</td><td class="mono">{{ b.date|dmy }}<br>{{ b.start_time }}–{{ b.end_time }}</td>
+      <td>{{ b.examiner }}</td><td class="mono">{{ b.booking_date[:10]|dmy }}</td><td>{{ st(b.status) }}</td>
+      <td class="r">{% if b.status == 'Booked' %}<a class="act" href="{{ url_for('admin.reschedule', bid=b.id) }}">reschedule</a>{% endif %}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="empty">No bookings {{ 'match.' if (q or st_) else 'yet.' }}</div>{% endif %}
+{% endblock %}

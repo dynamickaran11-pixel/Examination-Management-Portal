@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Edit slot{% endblock %}
+{% from 'macros.html' import head, field %}
+{% block body %}
+{{ head('Slot #' ~ sid, 'Edit', 'slot') }}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  {{ field('Date', 'date', s.date, 'date') }}
+  <div class="row">
+    <div class="col-6">{{ field('Start', 'start_time', s.start_time, 'time') }}</div>
+    <div class="col-6">{{ field('End', 'end_time', s.end_time, 'time') }}</div>
+  </div>
+  {{ field('Capacity', 'capacity', s.capacity, 'number', attrs='min="1"') }}
+  <button class="btn btn-ink">Save</button>
+  <a class="act ms-3" href="{{ url_for('examiner.exam', eid=eid) }}">cancel</a>
+</form>
+{% endblock %}

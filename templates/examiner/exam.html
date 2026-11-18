@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ e.name }}{% endblock %}
+{% from 'macros.html' import head, st, post, field %}
+{% block body %}
+{{ head(e.code ~ ' · ' ~ e.course_name, e.name) }}
+<div>{{ st(e.status) }}</div>
+<dl class="facts">
+  <div><dt>Type</dt><dd>{{ e.type }}</dd></div>
+  <div><dt>Duration</dt><dd>{{ e.duration }} min</dd></div>
+  <div><dt>Max marks</dt><dd>{{ e.max_marks }}</dd></div>
+  <div><dt>Slot creation</dt><dd class="mono">{{ e.slot_create_start|dmy }} → {{ e.slot_create_end|dmy }}</dd></div>
+</dl>
+
+<section class="section">
+  <div class="section-head"><h2>New slot</h2></div>
+  {% if can_create %}
+  <form method="post" action="{{ url_for('examiner.slot_create', eid=e.id) }}" class="row g-3 align-items-end mt-1">
+    {{ csrf_field() }}
+    <div class="col-md-3"><label class="form-label">Date</label><input class="form-control" type="date" name="date" value="{{ f.get('date','') }}" required></div>
+    <div class="col-md-2 col-6"><label class="form-label">Start</label><input class="form-control" type="time" name="start_time" value="{{ f.get('start_time','') }}" required></div>
+    <div class="col-md-2 col-6"><label class="form-label">End</label><input class="form-control" type="time" name="end_time" value="{{ f.get('end_time','') }}" required></div>
+    <div class="col-md-2"><label class="form-label">Capacity</label><input class="form-control" type="number" min="1" name="capacity" value="{{ f.get('capacity', 1) }}" required></div>
+    <div class="col-md-3"><button class="btn btn-ink">Create slot</button></div>
+  </form>
+  {% else %}
+  <div class="empty">Slot creation is closed. It is open only while the status is “Slot Creation” and today falls inside the window above.</div>
+  {% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>My slots</h2></div>
+  {% if slots %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>ID</th><th>Date</th><th>Time</th><th>Seats</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for s in slots %}
+    <tr><td class="mono">{{ s.id }}</td><td class="mono">{{ s.date|dmy }}</td>
+        <td class="mono">{{ s.start_time }}–{{ s.end_time }}</td>
+        <td class="mono">{{ s.available_seats }}/{{ s.capacity }}</td><td>{{ st(s.status) }}</td>
+        <td class="r">
+          <a class="act" href="{{ url_for('examiner.slot', sid=s.id) }}">students</a>
+          {% if editable and s.n_rows == 0 %}
+            <a class="act" href="{{ url_for('examiner.slot_edit', sid=s.id) }}">edit</a>
+            {{ post(url_for('examiner.slot_delete', sid=s.id), 'remove', 'act act-danger', 'Remove this slot?') }}
+          {% endif %}
+        </td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">No slots yet.</div>{% endif %}
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Rubric</h2></div>
+  {% if rubrics %}
+  <table class="table"><thead><tr><th>Criterion</th><th>Max</th><th>Weight %</th></tr></thead><tbody>
+    {% for r in rubrics %}<tr><td>{{ r.criterion }}{% if r.description %}<div class="muted">{{ r.description }}</div>{% endif %}</td>
+      <td class="mono">{{ r.max_marks|num }}</td><td class="mono">{{ r.weightage|num }}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<div class="empty">The Admin has not defined criteria yet.</div>{% endif %}
+</section>
+{% endblock %}

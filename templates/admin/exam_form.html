@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Examination{% endblock %}
+{% from 'macros.html' import head, field %}
+{% block body %}
+{{ head('Examinations', 'Edit' if editing else 'New', 'examination') }}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  <div class="mb-4"><label class="form-label" for="course_id">Course</label>
+    <select class="form-select" id="course_id" name="course_id" required>
+      <option value="">Choose…</option>
+      {% for c in courses %}<option value="{{ c.id }}" {{ 'selected' if e.course_id|string == c.id|string }}>{{ c.code }} — {{ c.name }}</option>{% endfor %}
+    </select></div>
+  {{ field('Examination name', 'name', e.name) }}
+  <div class="row">
+    <div class="col-md-6 mb-4"><label class="form-label" for="type">Type</label>
+      <select class="form-select" id="type" name="type" required>
+        {% for t in types %}<option {{ 'selected' if e.type == t }}>{{ t }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3">{{ field('Minutes', 'duration', e.duration, 'number', attrs='min="1"') }}</div>
+    <div class="col-md-3">{{ field('Max marks', 'max_marks', e.max_marks, 'number', attrs='min="1"') }}</div>
+  </div>
+  <div class="eyebrow mb-2">Slot creation window — examiners</div>
+  <div class="row">
+    <div class="col-6">{{ field('From', 'slot_create_start', e.slot_create_start, 'date') }}</div>
+    <div class="col-6">{{ field('To', 'slot_create_end', e.slot_create_end, 'date') }}</div>
+  </div>
+  <div class="eyebrow mb-2">Booking window — students</div>
+  <div class="row">
+    <div class="col-6">{{ field('From', 'book_start', e.book_start, 'date') }}</div>
+    <div class="col-6">{{ field('To', 'book_end', e.book_end, 'date') }}</div>
+  </div>
+  <button class="btn btn-ink mt-2">Save</button>
+  <a class="act ms-3" href="{{ url_for('admin.exam_detail', eid=eid) if editing else url_for('admin.exams') }}">cancel</a>
+</form>
+{% endblock %}

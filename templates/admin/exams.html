@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Examinations{% endblock %}
+{% from 'macros.html' import head, st %}
+{% block body %}
+{{ head('Admin', 'Examinations') }}
+<div class="toolbar">
+  <form class="search" method="get">
+    <input class="form-control" name="q" value="{{ q }}" placeholder="Name, course or ID">
+    <select class="form-select" name="status">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option {{ 'selected' if s == st_ }} value="{{ s }}">{{ s }}</option>{% endfor %}
+    </select>
+    <button class="btn">Filter</button>
+    {% if q or st_ %}<a class="act" href="{{ url_for('admin.exams') }}">clear</a>{% endif %}
+  </form>
+  <a class="btn btn-ink" href="{{ url_for('admin.exam_new') }}">New examination</a>
+</div>
+{% if rows %}
+<div class="table-responsive"><table class="table table-hover">
+  <thead><tr><th>ID</th><th>Examination</th><th>Type</th><th>Marks</th><th>Slots</th><th>Booked</th><th>Status</th></tr></thead>
+  <tbody>
+  {% for e in rows %}
+  <tr><td class="mono">{{ e.id }}</td>
+      <td><a href="{{ url_for('admin.exam_detail', eid=e.id) }}">{{ e.name }}</a>
+          <div class="muted mono">{{ e.code }}</div></td>
+      <td>{{ e.type }}<div class="muted mono">{{ e.duration }} min</div></td>
+      <td class="mono">{{ e.max_marks }}</td><td class="mono">{{ e.n_slots }}</td>
+      <td class="mono">{{ e.n_book }}</td><td>{{ st(e.status) }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+{% else %}<div class="empty">No examinations {{ 'match.' if (q or st_) else 'yet.' }}</div>{% endif %}
+{% endblock %}

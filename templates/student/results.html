@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Results{% endblock %}
+{% from 'macros.html' import head %}
+{% block body %}
+{{ head('Student', 'Results', '& remarks') }}
+{% for r in rows %}
+<div class="result">
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="eyebrow">{{ r.date|dmy }} · {{ r.examiner }}</div>
+      <h2 class="h4 my-2">{{ r.exam }}</h2>
+      <div class="score">{{ r.total_marks|num }}<span class="muted" style="font-size:1.2rem"> / {{ r.max_marks }}</span></div>
+    </div>
+    <div class="col-md-8">
+      <table class="table"><tbody>
+        {% for p in r.parts %}<tr><td>{{ p.criterion }}</td><td class="mono r">{{ p.marks|num }} / {{ p.max_marks|num }}</td></tr>{% endfor %}
+      </tbody></table>
+      {% if r.remarks %}<div class="note mt-3">{{ r.remarks }}</div>{% endif %}
+    </div>
+  </div>
+</div>
+{% else %}<div class="empty">No results have been published yet.</div>{% endfor %}
+{% endblock %}

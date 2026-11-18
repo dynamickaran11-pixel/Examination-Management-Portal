@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Slot{% endblock %}
+{% from 'macros.html' import head, st %}
+{% block body %}
+{{ head(s.exam, s.date|dmy, s.start_time ~ '–' ~ s.end_time) }}
+<div>{{ st(s.status) }} <span class="muted mono ms-3">{{ s.available_seats }} of {{ s.capacity }} seats free</span></div>
+
+<section class="section">
+  <div class="section-head"><h2>Booked students</h2></div>
+  {% if rows %}
+  <div class="table-responsive"><table class="table">
+    <thead><tr><th>Student</th><th>Department</th><th>Booking</th><th>Marks</th><th></th></tr></thead><tbody>
+    {% for r in rows %}
+    <tr><td>{{ r.student }}<div class="muted mono">{{ r.email }}</div></td><td>{{ r.department }}</td>
+        <td>{{ st(r.status) }}</td>
+        <td class="mono">{{ r.total_marks|num if r.total_marks is not none else '—' }} / {{ s.max_marks }}</td>
+        <td class="r"><a class="act" href="{{ url_for('examiner.evaluate', bid=r.id) }}">{{ 'edit marks' if r.total_marks is not none else 'evaluate' }}</a></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty">Nobody has booked this slot.</div>{% endif %}
+</section>
+<p class="mt-4"><a class="act" href="{{ url_for('examiner.exam', eid=s.exam_id) }}">back to examination</a></p>
+{% endblock %}

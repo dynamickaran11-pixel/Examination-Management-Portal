@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Course{% endblock %}
+{% from 'macros.html' import head, field %}
+{% block body %}
+{{ head('Courses', 'Edit' if editing else 'New', 'course') }}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  {{ field('Course code', 'code', c.code) }}
+  {{ field('Course name', 'name', c.name) }}
+  <div class="mb-4"><label class="form-label" for="description">Description</label>
+    <textarea class="form-control" id="description" name="description" rows="3">{{ c.description or '' }}</textarea></div>
+  <div class="mb-4"><label class="form-label" for="status">Status</label>
+    <select class="form-select" id="status" name="status">
+      {% for s in ['Active','Inactive'] %}<option {{ 'selected' if c.status == s }}>{{ s }}</option>{% endfor %}
+    </select></div>
+  <button class="btn btn-ink">Save</button>
+  <a class="act ms-3" href="{{ url_for('admin.courses') }}">cancel</a>
+</form>
+{% endblock %}

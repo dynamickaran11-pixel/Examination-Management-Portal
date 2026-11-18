@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Portal{% endblock %} — Examination Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% block shell %}
+<div class="wrap">
+  {% include 'nav.html' %}
+  <main class="page">
+    {% for cat, msg in get_flashed_messages(with_categories=true) %}
+      <div class="note note-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+    {% block body %}{% endblock %}
+  </main>
+  <footer class="foot"><span>Examination Management Portal</span><span>Flask · SQLite</span></footer>
+</div>
+{% endblock %}
+</body>
+</html>

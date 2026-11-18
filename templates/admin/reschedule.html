@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Reschedule{% endblock %}
+{% from 'macros.html' import head %}
+{% block body %}
+{{ head('Booking #' ~ b.id ~ ' · ' ~ b.exam, 'Reschedule', b.student) }}
+<p class="mono">Now: {{ b.date|dmy }} · {{ b.start_time }}</p>
+{% if options %}
+<form method="post" class="form-narrow">
+  {{ csrf_field() }}
+  <div class="mb-4"><label class="form-label" for="slot_id">Move to</label>
+    <select class="form-select" id="slot_id" name="slot_id">
+      {% for s in options %}<option value="{{ s.id }}">{{ s.date|dmy }} · {{ s.start_time }}–{{ s.end_time }} · {{ s.examiner }} · {{ s.available_seats }} seat(s)</option>{% endfor %}
+    </select></div>
+  <button class="btn btn-ink">Move booking</button>
+  <a class="act ms-3" href="{{ url_for('admin.bookings') }}">cancel</a>
+</form>
+{% else %}<div class="empty">No other open slot with free seats exists for this examination.</div>{% endif %}
+{% endblock %}

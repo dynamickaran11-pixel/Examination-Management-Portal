@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Bookings{% endblock %}
+{% from 'macros.html' import head, st, post %}
+{% block body %}
+{{ head('Student', 'My bookings', '& history') }}
+{% if rows %}
+<div class="table-responsive"><table class="table">
+  <thead><tr><th>Examination</th><th>Date</th><th>Time</th><th>Examiner</th><th>Booked on</th><th>Status</th><th></th></tr></thead><tbody>
+  {% for b in rows %}
+  <tr><td>{{ b.exam }}</td><td class="mono">{{ b.date|dmy }}</td><td class="mono">{{ b.start_time }}–{{ b.end_time }}</td>
+      <td>{{ b.examiner }}</td><td class="mono">{{ b.booking_date[:10]|dmy }}</td><td>{{ st(b.status) }}</td>
+      <td class="r">{% if b.status == 'Booked' and b.exam_status == 'Booking Open' and today() <= b.book_end %}
+        {{ post(url_for('student.cancel', bid=b.id), 'cancel', 'act act-danger', 'Cancel this booking?') }}{% endif %}</td></tr>
+  {% endfor %}</tbody></table></div>
+{% else %}<div class="empty">You have not booked anything yet. <a href="{{ url_for('student.exams') }}">Browse examinations</a>.</div>{% endif %}
+{% endblock %}
